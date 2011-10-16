@@ -155,6 +155,8 @@ function search_events($query) {
   
   $doc = new DOMDocument();
   $doc->strictErrorChecking = false;
+  if ($response == "")
+    return array();
   $doc->loadHTML($response);
   $xml = simplexml_import_dom($doc);
   
@@ -202,6 +204,8 @@ function get_event_races($id) {
   
   $doc = new DOMDocument();
   $doc->strictErrorChecking = false;
+  if ($response == "")
+    return array();
   $doc->loadHTML($response);
   $xml = simplexml_import_dom($doc);
   
