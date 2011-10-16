@@ -1,0 +1,40 @@
+$(document).ready(function() { 
+  $.getJSON('parse_race.php', function(data) {
+	  //alert(data['x'].toSource());
+	  d3_line('#bike', data['time'], data['count']);
+  });
+});
+
+function histogram(x, dx) {
+  
+}
+
+function d3_line(placeholder, xdata, ydata) {
+    var width = 400;
+    var height = 300;
+    var xmax = d3.max(xdata);
+    var ymax = d3.max(ydata);
+
+    var data = [];
+    var i = 0;
+    $.each(xdata, function(i, xi) {
+	    data[i] = [xi, ydata[i]];
+	});
+
+    var x = d3.scale.linear().domain([0, xmax]).range([0, width]);
+    var y = d3.scale.linear().domain([0, ymax]).range([height, 0]);
+
+    var plot = d3.select(placeholder).
+        append('svg:svg').
+	attr('width',width).
+        attr('height',height);
+
+    plot.selectAll('path.line').
+	data([data]).
+        enter().
+        append('svg:path').
+        attr("d", d3.svg.line().
+             x(function (d,i) { return x(d[0]) }).
+             y(function (d,i) { return y(d[1]) }));
+
+}
