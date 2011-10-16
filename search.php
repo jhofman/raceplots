@@ -26,18 +26,39 @@
 
 
   <script>
-$(document).ready(function() { 
+function search_events(query) {
 
+  events = [];
   $.ajax({url: "http://onlineraceresults.com/search/index.php",
 	type: "GET",
-	data: { search_term: "nation's" },
+	data: query,
 	success: function(data) {
-          var results = $('table.search-results', $(data.responseText));
+          var rows = $('table.search-results tr', $(data.responseText));
 	  
-	  console.log(results.('table'));
+	  $.each(rows, function (i, row) {
+	      var event = {};
+
+	      var a = $('td[class="data one"] a', row);
+	      event['name'] = a.text();
+	      event['id'] = a.attr('href').split('=')[1];
+
+	      event['date'] = $('td[class="data two"] p', row).text();
+
+	      event['location'] = $('td[class="data three"] p', row).text();
+
+	      events.push(event);
+	    });
 
 	  }
+
         });
+
+  return events;
+}
+
+$(document).ready(function() { 
+
+    var events = search_events({search_term: 'nautica'});
 
 });
   </script>
@@ -45,7 +66,7 @@ $(document).ready(function() {
  </head>
 
  <body>
-  <div class="container">
+  <div id=events class="container">
 
 
   </div>
