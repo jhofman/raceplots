@@ -181,6 +181,11 @@ function search_events($query) {
     $event['ymd'] = strftime("%Y-%m-%d", strtotime(trim($p[0])));
     $p = $row->xpath('td[@class="data three"]');
     $event['location'] = trim($p[0]);
+
+    // cache event in database
+    $query_str = sprintf('INSERT INTO events (id,name,location,ymd) VALUES (%d,"%s","%s","%s")',
+			 $event['id'], $event['name'], $event['location'], $event['ymd']);
+    mysql_query($query_str);
     
     array_push($events, $event);
   }
@@ -225,6 +230,11 @@ function get_event_races($id) {
     $race['id'] = $matches[1];
     //list($url, $race['id']) = array_map(strval, split('=', $attrib['href']));
     
+    // cache race in database
+    $query_str = sprintf('INSERT INTO races (id,event_id,name) VALUES (%d,%d,"%s")',
+			 $race['id'], $id, $race['name']);
+    mysql_query($query_str);
+
     array_push($races, $race);
   }
   
@@ -233,9 +243,6 @@ function get_event_races($id) {
   return $races;
 }
 
-
-//var_export(search_events('nautica'));
-//var_export(get_event_races(5225));
 
 // get race by id (txt, pdf, parse, insert into db)
 /*
