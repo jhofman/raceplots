@@ -51,7 +51,7 @@ function update_events() {
 	    });
 
 	    $("input#event").autocomplete({
-		source: events
+		    source: events
 	    });	
 	  }
       });
@@ -64,7 +64,7 @@ function update_races() {
   if (event_name != "" && event_id == undefined)
       return;
 
-  $('table#events').html('');
+  $('table#events').html('').slideDown();
 
   $.ajax({url: "races.php",
 	  type: "GET",
@@ -400,10 +400,22 @@ function histogram(placeholder, x, dx, xmin, xmax) {
     d3_line(placeholder, x, y, [xmin,xmax]);
 }
 
-function set_event(name, ymd) {
+function set_event(id, name, ymd) {
+    update_events();
+    $('table#events').slideUp('fast');
+
     var year = ymd.substring(0,4);
-    $('input#event').val(name + " " + year);
-    update_races();
+    var key = name + " " + year;
+    $('input#event').val(key);
+
+    console.log(id);
+    $.ajax({url: "getevent.php",
+	    type: "GET",
+	    data: {id: id},
+	    success: function(data) {
+		update_races();
+	    }
+	});
 }
 
 function print_events_table(events, table, fields) {
@@ -419,7 +431,7 @@ function print_events_table(events, table, fields) {
 	    $.each(fields, function(f, field) {
 		    row += "<td>";
 		    if (field == 'name')
-			row += '<a href=# onclick=\'set_event("' + event['name'] + '","' + event['ymd'] +'")\'>' + event[field] + '</a>';
+			row += '<a href=# onclick=\'set_event("' + event['id'] + '","' + event['name'] + '","' + event['ymd'] +'")\'>' + event[field] + '</a>';
 		    else
 			row += event[field];
 		    row += "</td>";
