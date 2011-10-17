@@ -1,3 +1,9 @@
+<?php
+
+require_once('raceplots.php');
+
+?>
+
 <html>
  <head>
 
@@ -33,12 +39,23 @@
 
    <div class="span-16 prepend-4 append-4 prepend-top last">
     <fieldset>
+     <label for=event>Event</label>
+     <select id=event onChange="update_races()" style="width:200px">
+      <option value="" selected></option>
+      <option value="-1">Search OnlineRaceResults</option>
+      <?php
+        $results = mysql_query("SELECT id,name,year(ymd) as year FROM events", $db);
+        while ($row = mysql_fetch_assoc($results))
+	  echo sprintf('<option value=%d>%s %s</option>\n', $row['id'], $row['name'], $row['year']);
+      ?>
+     </select>
+     <!-- <input id=test type=text width=100%></input> -->
+     <br/>
+
+    <div id=event_fields style="display: none">
      <label for=race>Race</label>
      <select id=race onChange="update_divisions()" style="width:150px">
       <option value="" selected></option>
-      <option value="21268">Nations Triathlon 2011</option>
-      <option value="20359">NYC Triathlon 2011</option>
-      <option value="15113">NYC Triathlon 2010</option>
      </select>
 
      &nbsp; 
@@ -52,10 +69,14 @@
 
      <label for=athlete>Athlete</label>
      <input id=athlete type=text width=100%></input>
+
+    </div>
    </div>
 
    <div class="span-16 prepend-4 append-4 last">
      <center>
+     <table class="tablesorter" id="events"></table>
+
      <div id="hists" style="width:100%;height:100px;"></div>
      <table class="tablesorter" id="times"></table>
      </center>
@@ -64,9 +85,5 @@
   </div>
 
  </body>
-
-<?php
-
-?>
 
 </html>

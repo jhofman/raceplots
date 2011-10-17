@@ -25,7 +25,7 @@ foreach (array('swim','bike','run','total') as $sport) {
     $query = sprintf('select count(*) as rank from race_times as all_times, race_times as athlete_time where all_times.race_id=%d and all_times.race_id=athlete_time.race_id and athlete_time.athlete="%s" and all_times.%s < athlete_time.%s', $race_id, $athlete, $sport, $sport);
     if ($division != "")
       $query .= " and all_times.division='$division'";
-    error_log($query);
+    //error_log($query);
     $results = mysql_query($query, $db);
     $row = mysql_fetch_array($results);
     $response[$sport . '_rank'] = (int) $row['rank'];
@@ -33,7 +33,7 @@ foreach (array('swim','bike','run','total') as $sport) {
     $query = "select count(*) as athletes from race_times where race_id=$race_id and $sport > 0";
     if ($division != "")
       $query .= " and division='$division'";
-    error_log($query);
+    //error_log($query);
     $results = mysql_query($query, $db);
     $row = mysql_fetch_array($results);
     $response[$sport . '_athletes'] = (int) $row['athletes'];

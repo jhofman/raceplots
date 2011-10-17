@@ -1,8 +1,82 @@
 var athletes = [];
+var event_ids = {};
 $(document).ready(function() { 
+
+  update_events();
+
+  $("input#test").keydown(function(event){
+	  if(event.keyCode == 13){
+
+	      $.ajax({url: "events.php",
+	        type: "GET",
+		data: {name: $("input#test").val(), remote: 1},
+	        success: function(data) {
+	         var events = JSON.parse(data);
+	    
+		 console.log(events);
+
+		 var fields = {'Event': 'name', 'Location': 'location', 'Date': 'ymd'};
+		 print_events_table(events, 'table#events', fields);
+		 
+		}
+	      });
+
+	  }
+      });  
 
 });
 
+function update_events() {
+  $.ajax({url: "events.php",
+	  type: "GET",
+	  success: function(data) {
+	    var response = JSON.parse(data);
+	    
+	    var events = [];
+	    $.each(response, function (i, event) {
+		    var year = event['ymd'].substring(0,4);
+		    //events.push({label: event['name'] + " " + year, value: event['id']});
+		    
+		    var key = event['name'] + " " + year;
+		    events.push(key);
+
+		    event_ids[key] = event['id'];
+	    });
+
+	    $("input#test").autocomplete({
+		source: events
+	    });	
+	  }
+      });
+}
+
+function update_races() {
+  var event_id=$('select#event option:selected').val();
+  //var event_id = event_ids[$('input#test').val()];
+  //console.log(event_id);
+
+  $.ajax({url: "races.php",
+	  type: "GET",
+	  data: { event_id: event_id },
+	  success: function(data) {
+	    var races = JSON.parse(data);
+
+	    if (races.length > 0)
+		$('div#event_fields').slideDown('fast');
+	    else
+		$('div#event_fields').hide();
+
+	    races.sort();
+	    $('select#race').html('<option value=""></option>');
+	    $.each(races, function (i, race) {
+	      $('select#race').append('<option value="'+race['id']+'">'+race['name']+'</option>');
+	    });
+
+	    $('select#race').focus();
+	  }
+        });
+
+}
 
 function update_divisions() {
   var race_id=$('select#race option:selected').val();
@@ -11,7 +85,7 @@ function update_divisions() {
 	  type: "GET",
 	  data: { race_id: race_id },
 	  success: function(data) {
-	    divisions = JSON.parse(data);
+	    var divisions = JSON.parse(data);
 	    
 	    divisions.sort();
 	    $.each(divisions, function (i, div) {
@@ -58,7 +132,7 @@ function update_times() {
 	  type: "GET",
 	  data: { race_id: race_id, athlete: athlete },
 	  success: function(data) {
-	    times = JSON.parse(data);
+	    var times = JSON.parse(data);
 
 	    update_hists();
 
@@ -314,4 +388,36 @@ function histogram(placeholder, x, dx, xmin, xmax) {
 	xmax = d3.max(x);
 
     d3_line(placeholder, x, y, [xmin,xmax]);
+}
+
+function set_event(name, ymd) {
+    var year = ymd.substring(0,4);
+    $('input#test').val(name + " " + year);
+    //update_races();
+    $('table#events').html('');
+}
+
+function print_events_table(events, table, fields) {
+    $(table).empty();
+    $(table).append('<thead>');
+    $(table).append('<tbody>');
+    $(table).find('thead').append('<tr>');
+    $.each(fields, function(f, field) {
+	    $(table).find('thead tr').append('<th>' + f + '</th>');
+	});
+    $.each(events, function(g, event) {
+	    row = "<tr>";
+	    $.each(fields, function(f, field) {
+		    row += "<td>";
+		    if (field == 'name')
+			row += '<a href=# onclick=\'set_event("' + event['name'] + '","' + event['ymd'] +'")\'>' + event[field] + '</a>';
+		    else
+			row += event[field];
+		    row += "</td>";
+		});
+	    row += "</tr>";
+	    $(table).find('tbody').append(row);
+	}); 
+
+    //$(table).tablesorter();
 }
