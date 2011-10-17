@@ -40,7 +40,9 @@ require_once('raceplots.php');
    <div class="span-16 prepend-4 append-4 prepend-top last">
     <fieldset>
      <label for=event>Event</label>
-     <select id=event onChange="update_races()" style="width:200px">
+     <input id=event type=text style="width: 300px">
+     <!--
+     <select id=event onChange="update_races()" style="width:150px">
       <option value="" selected></option>
       <option value="-1">Search OnlineRaceResults</option>
       <?php
@@ -49,7 +51,7 @@ require_once('raceplots.php');
 	  echo sprintf('<option value=%d>%s %s</option>\n', $row['id'], $row['name'], $row['year']);
       ?>
      </select>
-     <!-- <input id=test type=text width=100%></input> -->
+     -->
      <br/>
 
     <div id=event_fields style="display: none">

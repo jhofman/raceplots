@@ -3,13 +3,21 @@ var event_ids = {};
 $(document).ready(function() { 
 
   update_events();
+  $("input#event").keyup(update_races);
 
-  $("input#test").keydown(function(event){
+  // search on enter if no autocomplete match
+  $("input#event").keydown(function(event){
 	  if(event.keyCode == 13){
+
+	      var event_name = $('input#event').val();
+	      var event_id = event_ids[event_name];
+	      
+	      if (event_id != undefined)
+		  return;
 
 	      $.ajax({url: "events.php",
 	        type: "GET",
-		data: {name: $("input#test").val(), remote: 1},
+		data: {name: $("input#event").val(), remote: 1},
 	        success: function(data) {
 	         var events = JSON.parse(data);
 	    
@@ -23,7 +31,6 @@ $(document).ready(function() {
 
 	  }
       });  
-
 });
 
 function update_events() {
@@ -43,7 +50,7 @@ function update_events() {
 		    event_ids[key] = event['id'];
 	    });
 
-	    $("input#test").autocomplete({
+	    $("input#event").autocomplete({
 		source: events
 	    });	
 	  }
@@ -51,9 +58,13 @@ function update_events() {
 }
 
 function update_races() {
-  var event_id=$('select#event option:selected').val();
-  //var event_id = event_ids[$('input#test').val()];
-  //console.log(event_id);
+  var event_name = $('input#event').val();
+  var event_id = event_ids[event_name];
+
+  if (event_name != "" && event_id == undefined)
+      return;
+
+  $('table#events').html('');
 
   $.ajax({url: "races.php",
 	  type: "GET",
@@ -72,7 +83,6 @@ function update_races() {
 	      $('select#race').append('<option value="'+race['id']+'">'+race['name']+'</option>');
 	    });
 
-	    $('select#race').focus();
 	  }
         });
 
@@ -392,9 +402,8 @@ function histogram(placeholder, x, dx, xmin, xmax) {
 
 function set_event(name, ymd) {
     var year = ymd.substring(0,4);
-    $('input#test').val(name + " " + year);
-    //update_races();
-    $('table#events').html('');
+    $('input#event').val(name + " " + year);
+    update_races();
 }
 
 function print_events_table(events, table, fields) {
