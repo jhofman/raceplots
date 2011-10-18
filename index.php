@@ -25,6 +25,12 @@ require_once('raceplots.php');
    div#hists svg {
     padding: 2;
    }
+
+   img#event_spinner {
+    height: 12px;
+    margin-left: -20px;
+    display: none;
+   }
   </style>
 
   <script src="jquery-1.5.1.min.js"></script>
@@ -41,6 +47,7 @@ require_once('raceplots.php');
     <fieldset>
      <label for=event>Event</label>
      <input id=event type=text style="width: 300px">
+     <img id=event_spinner src="spinner.gif" />
      <!--
      <select id=event onChange="update_races()" style="width:150px">
       <option value="" selected></option>

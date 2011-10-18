@@ -21,8 +21,6 @@ $(document).ready(function() {
 	        success: function(data) {
 	         var events = JSON.parse(data);
 	    
-		 console.log(events);
-
 		 var fields = {'Event': 'name', 'Location': 'location', 'Date': 'ymd'};
 		 print_events_table(events, 'table#events', fields);
 		 
@@ -66,6 +64,8 @@ function update_races() {
 
   $('table#events').html('').slideDown();
 
+  $('img#event_spinner').show();
+
   $.ajax({url: "races.php",
 	  type: "GET",
 	  data: { event_id: event_id },
@@ -83,6 +83,7 @@ function update_races() {
 	      $('select#race').append('<option value="'+race['id']+'">'+race['name']+'</option>');
 	    });
 
+	    $('img#event_spinner').hide();
 	  }
         });
 
@@ -364,58 +365,12 @@ function d3_line(placeholder, xdata, ydata, title, xlim, ylim) {
 
 }
 
-function histogram(placeholder, x, dx, xmin, xmax) {
-    var counts = {};		  
-    $.each(x, function(i, xi) {
-	    var bin = Math.round(xi/dx)*dx;
-	    if (xmax)
-		bin = Math.min(xmax, bin);
-	    if (xmin)
-		bin = Math.max(xmin, bin);
-
-	    if (bin in counts)
-		counts[bin]++;
-	    else
-		counts[bin] = 1;
-	});
-
-    var data = [];
-    $.each(counts, function(k, v) {
-	    data.push([k,v]);
-	});
-
-    data.sort(function (a,b) {return a[0]-b[0]});
-    var x = [];
-    var y = [];
-    $.each(data, function(i, d) {
-	    x.push(parseInt(d[0]));
-	    y.push(parseInt(d[1]));
-	});
-
-    if (!xmin)
-	xmin = d3.min(x);
-    if (!xmax)
-	xmax = d3.max(x);
-
-    d3_line(placeholder, x, y, [xmin,xmax]);
-}
-
-function set_event(id, name, ymd) {
-    update_events();
+function select_event(id) {
     $('table#events').slideUp('fast');
+    $('input#event').val($('a#'+id).text());
 
-    var year = ymd.substring(0,4);
-    var key = name + " " + year;
-    $('input#event').val(key);
-
-    console.log(id);
-    $.ajax({url: "getevent.php",
-	    type: "GET",
-	    data: {id: id},
-	    success: function(data) {
-		update_races();
-	    }
-	});
+    update_events();
+    update_races();
 }
 
 function print_events_table(events, table, fields) {
@@ -429,9 +384,12 @@ function print_events_table(events, table, fields) {
     $.each(events, function(g, event) {
 	    row = "<tr>";
 	    $.each(fields, function(f, field) {
+		    var key = event['name'] + " " + event['ymd'].substring(0,4);
+		    event_ids[key] = event['id'];
+
 		    row += "<td>";
 		    if (field == 'name')
-			row += '<a href=# onclick=\'set_event("' + event['id'] + '","' + event['name'] + '","' + event['ymd'] +'")\'>' + event[field] + '</a>';
+			row += '<a id=' + event['id'] + ' href=# onclick=\'select_event(' + event['id'] + ')\'>' + key + '</a>';
 		    else
 			row += event[field];
 		    row += "</td>";
